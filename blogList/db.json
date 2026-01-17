@@ -1,0 +1,25 @@
+{
+  "blogs": [
+    {
+      "title": "Asian Cooking",
+      "author": "Leslie Martins",
+      "url": "web-page-1234",
+      "likes": 124,
+      "id": "e9de"
+    },
+    {
+      "title": "Travelling in Finland",
+      "author": "Mike Mulligan",
+      "url": "web-page-5678",
+      "likes": 568,
+      "id": "8a76"
+    },
+    {
+      "id": "3",
+      "title": "World Sports",
+      "author": "Jason Henley",
+      "url": "web-page-8765",
+      "likes": "1214"
+    }
+  ]
+}

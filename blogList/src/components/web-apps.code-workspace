@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"name": "Chapter-5-frontend",
+			"path": "../.."
+		}
+	],
+	"settings": {}
+}
