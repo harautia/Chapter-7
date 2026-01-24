@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import BlogForm from './BlogForm'
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import BlogForm from "./BlogForm";
 
 /*
 test('Verify the blogform component', async () => {
@@ -47,19 +47,28 @@ test('Verify the blogform component', async () => {
     Ongelma on APP.jsxssä oleva blogForm - käyttö
 
 */
-test('Verify the blogform component', async () => {
-  const createBlog = vi.fn()
-  const user = userEvent.setup()
-  
-  render(<BlogForm createBlog={createBlog} />)
-  
-  await user.type(screen.getByPlaceholderText('write title here'), 'testing new title')
-  await user.type(screen.getByPlaceholderText('write author here'), 'testing new author')
-  await user.type(screen.getByPlaceholderText('write url here'), 'testing new url')
-  await user.click(screen.getByText('add'))
-  
-  expect(createBlog).toHaveBeenCalledTimes(1)
-  expect(createBlog.mock.calls[0][0].title).toBe('testing new title')
-  expect(createBlog.mock.calls[0][0].author).toBe('testing new author')
-  expect(createBlog.mock.calls[0][0].url).toBe('testing new url')
-})
+test("Verify the blogform component", async () => {
+  const createBlog = vi.fn();
+  const user = userEvent.setup();
+
+  render(<BlogForm createBlog={createBlog} />);
+
+  await user.type(
+    screen.getByPlaceholderText("write title here"),
+    "testing new title",
+  );
+  await user.type(
+    screen.getByPlaceholderText("write author here"),
+    "testing new author",
+  );
+  await user.type(
+    screen.getByPlaceholderText("write url here"),
+    "testing new url",
+  );
+  await user.click(screen.getByText("add"));
+
+  expect(createBlog).toHaveBeenCalledTimes(1);
+  expect(createBlog.mock.calls[0][0].title).toBe("testing new title");
+  expect(createBlog.mock.calls[0][0].author).toBe("testing new author");
+  expect(createBlog.mock.calls[0][0].url).toBe("testing new url");
+});

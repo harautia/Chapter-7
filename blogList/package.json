@@ -1,5 +1,5 @@
 {
-  "name": "chapter-4-frontend",
+  "name": "chapter-7-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "build:ui": "rm -rf ../backend/dist && vite build && cp -r dist ../backend/",
     "preview": "vite preview",
     "server": "json-server -p 3001 db.json",
     "test": "vitest run"

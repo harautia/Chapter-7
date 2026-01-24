@@ -1,120 +1,119 @@
-const assert = require('node:assert')
-const { test, after } = require('node:test')
-const mongoose = require('mongoose')
-const supertest = require('supertest')
-const app = require('../app')
-const helper = require('./test_helper')
-const Blog = require('../models/blog')
+const assert = require("node:assert");
+const { test, after } = require("node:test");
+const mongoose = require("mongoose");
+const supertest = require("supertest");
+const app = require("../app");
+const helper = require("./test_helper");
+const Blog = require("../models/blog");
 
-const api = supertest(app)
+const api = supertest(app);
 
-test('blogs are returned as json', async () => {
+test("blogs are returned as json", async () => {
   await api
-    .get('/api/blogs')
+    .get("/api/blogs")
     .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+    .expect("Content-Type", /application\/json/);
+});
 
-test('blogs database _id is unique', async () => {
-  const isBlogIdUnique = await helper.uniqueBlogId()
-  assert.strictEqual(true, isBlogIdUnique)
-})
+test("blogs database _id is unique", async () => {
+  const isBlogIdUnique = await helper.uniqueBlogId();
+  assert.strictEqual(true, isBlogIdUnique);
+});
 
-test('Adding blog to DB', async () => {
+test("Adding blog to DB", async () => {
   const newBlog = {
-    "title": "Asian Cooking", 
-    "author": "Leslie Martins",
-    "url": "web-page-1234",
-    "likes": 124
-  }
+    title: "Asian Cooking",
+    author: "Leslie Martins",
+    url: "web-page-1234",
+    likes: 124,
+  };
 
-  const initialBlogs = await helper.blogsInDb()
-  
-    await api
-    .post('/api/blogs')
+  const initialBlogs = await helper.blogsInDb();
+
+  await api
+    .post("/api/blogs")
     .send(newBlog)
     .expect(201)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
 
-  const addedBlogs = await helper.blogsInDb()
-  assert.strictEqual(initialBlogs.length, addedBlogs.length -1)
+  const addedBlogs = await helper.blogsInDb();
+  assert.strictEqual(initialBlogs.length, addedBlogs.length - 1);
 
-  const isNewBlogAdded = await helper.newBlogInDb(newBlog)
-  assert.strictEqual(true, isNewBlogAdded)
-})
+  const isNewBlogAdded = await helper.newBlogInDb(newBlog);
+  assert.strictEqual(true, isNewBlogAdded);
+});
 
-test('Missing Likes Parameter', async () => {
+test("Missing Likes Parameter", async () => {
   const newBlog = {
-    "title": "Testing1235", 
-    "author": "Kieran Landon",
-    "url": "web-page-4321"
-  }
-    await api
-    .post('/api/blogs')
+    title: "Testing1235",
+    author: "Kieran Landon",
+    url: "web-page-4321",
+  };
+  await api
+    .post("/api/blogs")
     .send(newBlog)
     .expect(201)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
 
-  const lastAddedBlogLikeCheck = await helper.noLikesBlogAddedTonDb(newBlog)
-  assert.strictEqual(0, lastAddedBlogLikeCheck)
-})
+  const lastAddedBlogLikeCheck = await helper.noLikesBlogAddedTonDb(newBlog);
+  assert.strictEqual(0, lastAddedBlogLikeCheck);
+});
 
-test('Blog without URL is not added', async () => {
+test("Blog without URL is not added", async () => {
   const newBlog = {
-    "title": "Testing1235", 
-    "author": "Kieran Landon",
-    "likes": 123
-  }
-  const initialBlogs = await helper.blogsInDb()
+    title: "Testing1235",
+    author: "Kieran Landon",
+    likes: 123,
+  };
+  const initialBlogs = await helper.blogsInDb();
 
-    await api
-    .post('/api/blogs')
+  await api
+    .post("/api/blogs")
     .send(newBlog)
     .expect(400)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
 
-  const addedBlogs = await helper.blogsInDb()
-  assert.strictEqual(initialBlogs.length, addedBlogs.length)
-})
+  const addedBlogs = await helper.blogsInDb();
+  assert.strictEqual(initialBlogs.length, addedBlogs.length);
+});
 
-test('Blog without title is not added', async () => {
-  const newBlog = { 
-    "author": "Kieran Landon",
-    "url": "web-site-1",
-    "likes": 123
-  }
-  const initialBlogs = await helper.blogsInDb()
+test("Blog without title is not added", async () => {
+  const newBlog = {
+    author: "Kieran Landon",
+    url: "web-site-1",
+    likes: 123,
+  };
+  const initialBlogs = await helper.blogsInDb();
 
-    await api
-    .post('/api/blogs')
+  await api
+    .post("/api/blogs")
     .send(newBlog)
     .expect(400)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
 
-  const addedBlogs = await helper.blogsInDb()
-  assert.strictEqual(initialBlogs.length, addedBlogs.length)
-})
+  const addedBlogs = await helper.blogsInDb();
+  assert.strictEqual(initialBlogs.length, addedBlogs.length);
+});
 
-test('Blog likes updated correctly', async () => {
+test("Blog likes updated correctly", async () => {
   const updateLikes = {
-    "likes": 999
-  }
+    likes: 999,
+  };
 
-    await api
-    .put('/api/blogs/68976c22228bca51c804e332')
+  await api
+    .put("/api/blogs/68976c22228bca51c804e332")
     .send(updateLikes)
     .expect(200)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
 
-  const likeUpdate = await helper.likesInBlog('68976c22228bca51c804e332')
- 
-  assert.strictEqual(updateLikes.likes,likeUpdate)
-})
+  const likeUpdate = await helper.likesInBlog("68976c22228bca51c804e332");
 
+  assert.strictEqual(updateLikes.likes, likeUpdate);
+});
 
 after(async () => {
-  await mongoose.connection.close()
-})
+  await mongoose.connection.close();
+});
 
 /*
 const { test, describe } = require('node:test')
