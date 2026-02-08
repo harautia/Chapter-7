@@ -2,16 +2,51 @@ import { useState, useEffect, useRef } from "react";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
+import notificationReducer from './reducers/notificationReducer';
 import BlogDetails from "./components/BlogDetails";
 import Blog from "./components/Blog";
 import Footer from "./components/Footer";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import BlogForm from "./components/BlogForm";
+import { useReducer } from 'react';
 
 const App = () => {
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [notificationMessage, setNotificationMessage] = useState(null);
+
+/*
+  useReducer gives us both state AND dispatch in one hook
+  Redux equivalent would be: useSelector(state => state.notification) + useDispatch()
+
+  The key point to remember: useReducer returns both the state and dispatch function together,
+  whereas with Redux you get them separately (state from useSelector, dispatch from useDispatch).
+
+  Removed alse initialState from notificatioReducer since it is set here.
+*/
+const [notification, dispatch] = useReducer(notificationReducer, { 
+  message: '', 
+  visible: false 
+});
+
+  const addBlog = (blogObject) => {
+    blogFormRef.current.toggleVisibility();
+    blogService.createBlog(blogObject).then((response) => {
+      showBlogs(blogs.concat(response.data));
+        dispatch({
+          type: 'SHOW_INFO',
+          payload: `Added blog title: '${response.data.title}'`
+        });
+      setTimeout(() => {
+        dispatch({ type: 'HIDE' });
+      }, 5000);
+    });
+  };
+
+  const blogForm = () => (
+    <Togglable buttonLabel="new blog" ref={blogFormRef}>
+      <BlogForm createBlog={addBlog} />
+    </Togglable>
+  );
+
   const [, setLog] = useState("");
 
   const handleBlogDelete = (blogId) => {
@@ -60,17 +95,6 @@ const App = () => {
     }
   }, []);
 
-  const addBlog = (blogObject) => {
-    blogFormRef.current.toggleVisibility();
-    blogService.createBlog(blogObject).then((response) => {
-      showBlogs(blogs.concat(response.data));
-      setNotificationMessage(`Added blog title: '${response.data.title}'`);
-      setTimeout(() => {
-        setNotificationMessage(null);
-      }, 5000);
-    });
-  };
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -88,9 +112,12 @@ const App = () => {
       setUsername("");
       setPassword("");
     } catch {
-      setErrorMessage("wrong credentials");
+        dispatch({
+          type: 'SHOW_ERROR',
+          payload: `wrong credentials`
+        });
       setTimeout(() => {
-        setErrorMessage(null);
+        dispatch({ type: 'HIDE' });
       }, 5000);
     }
   };
@@ -115,12 +142,6 @@ const App = () => {
     </Togglable>
   );
 
-  const blogForm = () => (
-    <Togglable buttonLabel="new blog" ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
-    </Togglable>
-  );
-
   const sortedBlogs = blogs.sort((a, b) => a.likes - b.likes);
 
   const blogDetailsForm = () => (
@@ -138,8 +159,7 @@ const App = () => {
   return (
     <div>
       <h1>The Blog Listing</h1>
-      <Notification message={errorMessage} className="error" />
-      <Notification message={notificationMessage} className="info" />
+      <Notification notification={notification} />
       {!user && loginForm()}
       {user && (
         <div>
