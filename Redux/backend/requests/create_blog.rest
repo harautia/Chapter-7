@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imhhbm51IiwiaWQiOiI2OGM2YTNiNjI1ZDk5N2E5N2NhYTNkZjEiLCJpYXQiOjE3NTgzNTc2ODV9.G_fImh58gz5LN_7NNASpxQFQZif3PKsC4dnq1VglhHQ
+
+{
+"title": "Routing Revealed", 
+"author": "Hannu Rautiainen",
+"url": "web-page-routing",
+"likes": 43554
+}
