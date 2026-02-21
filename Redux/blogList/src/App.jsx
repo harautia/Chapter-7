@@ -2,30 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
-import notificationReducer from './reducers/notificationReducer';
 import BlogDetails from "./components/BlogDetails";
 import Blog from "./components/Blog";
 import Footer from "./components/Footer";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import BlogForm from "./components/BlogForm";
-import { useReducer } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
 
 const App = () => {
 
-/*
-  useReducer gives us both state AND dispatch in one hook
-  Redux equivalent would be: useSelector(state => state.notification) + useDispatch()
-
-  The key point to remember: useReducer returns both the state and dispatch function together,
-  whereas with Redux you get them separately (state from useSelector, dispatch from useDispatch).
-
-  Removed alse initialState from notificatioReducer since it is set here.
-*/
-const [notification, dispatch] = useReducer(notificationReducer, { 
-  message: '', 
-  visible: false 
-});
+  // No need to import notificationReducer directly — Redux handles it through the store
+  const dispatch = useDispatch()
+  const notification = useSelector(state => state);
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility();
@@ -87,6 +76,7 @@ const [notification, dispatch] = useReducer(notificationReducer, {
   console.log("render", blogs.length, "blogs");
 
   useEffect(() => {
+    console.log("useEffect fired");
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
