@@ -9,24 +9,26 @@ import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
 import BlogForm from "./components/BlogForm";
 import { useDispatch, useSelector } from 'react-redux'
+import { setNotification } from './reducers/notificationReducer'
+import { setBlogs, appendBlog, deleteBlog, addLike } from "./reducers/blogReducer";
+import { setUser, clearUser } from "./reducers/userReducer";
 
 const App = () => {
 
   // No need to import notificationReducer directly — Redux handles it through the store
   const dispatch = useDispatch()
-  const notification = useSelector(state => state);
+  const notification = useSelector(state => state.notification);
+
+//  When I used addBlog in dispatch I created an loop which made continuesly new blogs!
+//  Remember to differentiate addBlog & appendBlog
 
   const addBlog = (blogObject) => {
+    console.log("Add blog Executed")
     blogFormRef.current.toggleVisibility();
     blogService.createBlog(blogObject).then((response) => {
-      showBlogs(blogs.concat(response.data));
-        dispatch({
-          type: 'SHOW_INFO',
-          payload: `Added blog title: '${response.data.title}'`
-        });
-      setTimeout(() => {
-        dispatch({ type: 'HIDE' });
-      }, 5000);
+      console.log("Data After Adding Blog: ", response.data)
+      dispatch(appendBlog(response.data))
+        dispatch(setNotification(`Added blog title: '${response.data.title}'`, 'info', 5));
     });
   };
 
@@ -41,10 +43,8 @@ const App = () => {
   const handleBlogDelete = (blogId) => {
     if (window.confirm("Do you want to delete the blog?")) {
       blogService.deleteBlog(blogId).then((response) => {
-        console.log(response);
-        showBlogs((prevBlogs) =>
-          prevBlogs.filter((blog) => blog.id !== blogId),
-        );
+        console.log("Data After Blog Delete: ", response);
+        dispatch(deleteBlog(blogId));
       });
     } else {
       setLog("Action discarded");
@@ -52,42 +52,58 @@ const App = () => {
   };
 
   const handleAddLike = (blogId, likes) => {
-    console.log(blogId);
-    console.log(likes);
+    console.log("Here is blog Id: ", blogId, "New Like amount: ", likes);
     const content = {
       likes: likes + 1,
     };
     blogService.addLikes(blogId, content).then((response) => {
-      console.log(response);
-      showBlogs(
-        blogs.map((blog) =>
-          blog.id === blogId ? { ...blog, likes: likes + 1 } : blog,
-        ),
-      );
+      console.log("Data After Add Like Update: ", response);
+    dispatch(addLike(blogId));
     });
   };
 
-  const [blogs, showBlogs] = useState([]);
-  useEffect(() => {
-    blogService.getAllBlogs().then((response) => {
-      showBlogs(response.data);
-    });
-  }, []);
-  console.log("render", blogs.length, "blogs");
+/*  Input info from AI (to help me to understand code)
 
+useSelector(state => state.blogs) — subscribes your component to the Redux store. Whenever state.blogs changes,
+the component re-renders with the new value. The state here is the entire Redux store, and state.blogs matches
+the key you defined in configureStore.
+
+useEffect — runs once when the component mounts (and if dispatch changes, but it never does).
+It Calls blogService.getAllBlogs() to fetch blogs from the backend
+
+When the promise resolves, dispatches setBlogs(blogs) which updates state.blogs in the Redux store
+useSelector detects the store changed and re-renders the component with the new blogs
+
+Component mounts
+  → useEffect fires
+  → fetch blogs from API
+  → dispatch(setBlogs(blogs)) updates Redux store
+  → useSelector detects change
+  → component re-renders with blogs
+
+  It replaces the old useState pattern where you stored blogs locally in the component and
+  now they live in the global Redux store instead, accessible from any component.
+*/
+
+  const blogs = useSelector(state => state.blogs);
+  console.log("Data: ", blogs)
   useEffect(() => {
-    console.log("useEffect fired");
+    blogService.getAllBlogs().then(blogs => dispatch(setBlogs(blogs)))
+  }, [dispatch]);
+
+  const user = useSelector(state => state.user)
+  console.log("User: ", user)
+  useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      dispatch(setUser(user));
       blogService.setToken(user.token);
     }
   }, []);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -98,24 +114,18 @@ const App = () => {
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       console.log(user);
       blogService.setToken(user.token);
-      setUser(user);
+      dispatch(setUser(user));
       setUsername("");
       setPassword("");
     } catch {
-        dispatch({
-          type: 'SHOW_ERROR',
-          payload: `wrong credentials`
-        });
-      setTimeout(() => {
-        dispatch({ type: 'HIDE' });
-      }, 5000);
+        dispatch(setNotification(`Incorrect Credentials`, 'error', 5));
     }
   };
 
   const handleLogout = () => {
     window.localStorage.removeItem("loggedNoteappUser");
     window.localStorage.clear();
-    setUser(null);
+    dispatch(clearUser());
   };
 
   const blogFormRef = useRef();
@@ -132,7 +142,7 @@ const App = () => {
     </Togglable>
   );
 
-  const sortedBlogs = blogs.sort((a, b) => a.likes - b.likes);
+  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
   const blogDetailsForm = () => (
     <Togglable buttonLabel="show details" ref={blogFormRef}>

@@ -8,7 +8,7 @@ const setToken = (newToken) => {
 };
 
 const getAllBlogs = () => {
-  return axios.get(baseUrl);
+  return axios.get(baseUrl).then(response => response.data);
 };
 
 const createBlog = (newObject) => {
