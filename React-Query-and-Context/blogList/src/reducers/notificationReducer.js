@@ -1,9 +1,3 @@
-
-const initialState = {
-  message: null,
-  type: null  // 'error' or 'info'
-};
-
 const notificationReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'SHOW_INFO':

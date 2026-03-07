@@ -3,6 +3,8 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
 import notificationReducer from './reducers/notificationReducer';
+import blogReducer from "./reducers/blogReducer";
+import userReducer from "./reducers/userReducer"
 import BlogDetails from "./components/BlogDetails";
 import Blog from "./components/Blog";
 import Footer from "./components/Footer";
@@ -22,21 +24,24 @@ const App = () => {
 
   Removed alse initialState from notificatioReducer since it is set here.
 */
-const [notification, dispatch] = useReducer(notificationReducer, { 
-  message: '', 
-  visible: false 
-});
+  const [notification, notificationDispatch] = useReducer(notificationReducer, { 
+    message: '', 
+    visible: false 
+  });
 
   const addBlog = (blogObject) => {
     blogFormRef.current.toggleVisibility();
     blogService.createBlog(blogObject).then((response) => {
-      showBlogs(blogs.concat(response.data));
-        dispatch({
+      blogsDispatch({
+        type: "ADD_BLOG",
+        payload: response.data
+      });
+      notificationDispatch({
           type: 'SHOW_INFO',
           payload: `Added blog title: '${response.data.title}'`
         });
       setTimeout(() => {
-        dispatch({ type: 'HIDE' });
+        notificationDispatch({ type: 'HIDE' });
       }, 5000);
     });
   };
@@ -52,10 +57,11 @@ const [notification, dispatch] = useReducer(notificationReducer, {
   const handleBlogDelete = (blogId) => {
     if (window.confirm("Do you want to delete the blog?")) {
       blogService.deleteBlog(blogId).then((response) => {
-        console.log(response);
-        showBlogs((prevBlogs) =>
-          prevBlogs.filter((blog) => blog.id !== blogId),
-        );
+        console.log("Blog Delete Data: ", response);
+        blogsDispatch({
+        type: "DELETE_BLOG",
+        payload: blogId
+      });
       });
     } else {
       setLog("Action discarded");
@@ -70,54 +76,63 @@ const [notification, dispatch] = useReducer(notificationReducer, {
     };
     blogService.addLikes(blogId, content).then((response) => {
       console.log(response);
-      showBlogs(
-        blogs.map((blog) =>
-          blog.id === blogId ? { ...blog, likes: likes + 1 } : blog,
-        ),
-      );
+      blogsDispatch({
+        type: "ADD_LIKE",
+        payload: blogId
+      });
     });
   };
-
-  const [blogs, showBlogs] = useState([]);
+  
+  const [blogs, blogsDispatch] = useReducer(blogReducer, []);
   useEffect(() => {
     blogService.getAllBlogs().then((response) => {
-      showBlogs(response.data);
+      blogsDispatch({
+        type: "SET_BLOGS",
+        payload: response.data
+      });
     });
   }, []);
+
   console.log("render", blogs.length, "blogs");
+
+ const [user, userDispatch] =  useReducer(userReducer, null);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      userDispatch({
+        type: "SET_USER",
+        payload: user
+      });
       blogService.setToken(user.token);
     }
   }, []);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
-
+ 
   const handleLogin = async (event) => {
     event.preventDefault();
     console.log("logging in with", username, password);
     try {
       const user = await loginService.login({ username, password });
-
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       console.log(user);
       blogService.setToken(user.token);
-      setUser(user);
+      userDispatch({
+        type: "SET_USER",
+        payload: user
+      });
       setUsername("");
       setPassword("");
     } catch {
-        dispatch({
+        notificationDispatch({
           type: 'SHOW_ERROR',
           payload: `wrong credentials`
         });
       setTimeout(() => {
-        dispatch({ type: 'HIDE' });
+        notificationDispatch({ type: 'HIDE' });
       }, 5000);
     }
   };
@@ -125,7 +140,10 @@ const [notification, dispatch] = useReducer(notificationReducer, {
   const handleLogout = () => {
     window.localStorage.removeItem("loggedNoteappUser");
     window.localStorage.clear();
-    setUser(null);
+      userDispatch({
+        type: "SET_USER",
+        payload: null
+      });
   };
 
   const blogFormRef = useRef();
@@ -142,7 +160,7 @@ const [notification, dispatch] = useReducer(notificationReducer, {
     </Togglable>
   );
 
-  const sortedBlogs = blogs.sort((a, b) => a.likes - b.likes);
+  const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes);
 
   const blogDetailsForm = () => (
     <Togglable buttonLabel="show details" ref={blogFormRef}>
