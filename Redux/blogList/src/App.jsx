@@ -5,6 +5,7 @@ import userService from "./services/users";
 import Notification from "./components/Notification";
 import BlogDetails from "./components/BlogDetails";
 import Blog from "./components/Blog";
+import User from "./components/User";
 import Users from "./components/Users";
 import Footer from "./components/Footer";
 import LoginForm from "./components/LoginForm";
@@ -202,6 +203,23 @@ Component mounts
             <Footer />
           </div>
         }/>
+        <Route path="/users/:id" element={
+          <div>
+            <h1>The Blog Listing</h1>
+            <Notification notification={notification} />
+            {!user && loginForm()}
+            {user && (
+              <div>
+                <p>
+                  {user.name} logged in{" "}
+                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+                </p>
+              </div>
+            )}
+          <User users={users} blogs={blogs} />
+            <Footer/>
+          </div>   
+        }/> 
         <Route path="/users" element={
           <div>
             <h1>The Blog Listing</h1>
@@ -223,39 +241,5 @@ Component mounts
     </Router>
   );
 };
-
-/*
-
-  return (
-    <Router>
-      <div>
-        <Link style={padding} to="/">home</Link>
-        <Link style={padding} to="/users">users</Link>
-      </div>
-      <Routes>
-        <Route path="/users" element={<Blog blogs={blogs}> </Blog>} /> 
-      </Routes>
-      <div>
-        <h1>The Blog Listing</h1>
-        <Notification notification={notification} />
-        {!user && loginForm()}
-        {user && (
-          <div>
-            <p>
-              {user.name} logged in{" "}
-              <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-            </p>
-            {blogForm()}
-          </div>
-        )}
-        {user && <Blog blogs={blogs}> </Blog>}
-        {user && blogDetailsForm()}
-        <Footer />
-      </div>
-    </Router>
-  );
-};
-
-*/
 
 export default App;
