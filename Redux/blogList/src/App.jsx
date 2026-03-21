@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+import userService from "./services/users";
 import Notification from "./components/Notification";
 import BlogDetails from "./components/BlogDetails";
 import Blog from "./components/Blog";
+import Users from "./components/Users";
 import Footer from "./components/Footer";
 import LoginForm from "./components/LoginForm";
 import Togglable from "./components/Togglable";
@@ -12,6 +14,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { setBlogs, appendBlog, deleteBlog, addLike } from "./reducers/blogReducer";
 import { setUser, clearUser } from "./reducers/userReducer";
+import { setAllUsers } from "./reducers/usersReducer";
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link
+} from 'react-router-dom'
 
 const App = () => {
 
@@ -22,16 +29,21 @@ const App = () => {
 //  When I used addBlog in dispatch I created an loop which made continuesly new blogs!
 //  Remember to differentiate addBlog & appendBlog
 
-  const addBlog = (blogObject) => {
-    console.log("Add blog Executed")
-    blogFormRef.current.toggleVisibility();
-    blogService.createBlog(blogObject).then((response) => {
-      console.log("Data After Adding Blog: ", response.data)
-      dispatch(appendBlog(response.data))
-        dispatch(setNotification(`Added blog title: '${response.data.title}'`, 'info', 5));
+const addBlog = (blogObject) => {
+  console.log("Add blog Executed");
+  blogFormRef.current.toggleVisibility();
+  blogService.createBlog(blogObject).then((response) => {
+    console.log("Data After Adding Blog: ", response.data);
+    dispatch(appendBlog(response.data));
+    dispatch(setNotification(`Added blog title: '${response.data.title}'`, 'info', 5));
+    
+    // This was needed to see correct number of blogs created by user without whole page reload
+    userService.getAllUsers().then(users => {
+      console.log("Updated users:", users);
+      dispatch(setAllUsers(users));
     });
-  };
-
+  });
+};
   const blogForm = () => (
     <Togglable buttonLabel="new blog" ref={blogFormRef}>
       <BlogForm createBlog={addBlog} />
@@ -87,8 +99,12 @@ Component mounts
 
   const blogs = useSelector(state => state.blogs);
   console.log("Data: ", blogs)
+  const users = useSelector(state => state.users);
+  console.log("Users: ", users)
+
   useEffect(() => {
-    blogService.getAllBlogs().then(blogs => dispatch(setBlogs(blogs)))
+    blogService.getAllBlogs().then(blogs => dispatch(setBlogs(blogs)));
+    userService.getAllUsers().then(users => dispatch(setAllUsers(users)));
   }, [dispatch]);
 
   const user = useSelector(state => state.user)
@@ -156,25 +172,90 @@ Component mounts
     </Togglable>
   );
 
+  const padding = {
+    padding: 5
+  }
+
   return (
-    <div>
-      <h1>The Blog Listing</h1>
-      <Notification notification={notification} />
-      {!user && loginForm()}
-      {user && (
-        <div>
-          <p>
-            {user.name} logged in{" "}
-            <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-          </p>
-          {blogForm()}
-        </div>
-      )}
-      {user && <Blog blogs={blogs}> </Blog>}
-      {user && blogDetailsForm()}
-      <Footer />
-    </div>
+    <Router>
+      <div>
+        <Link style={padding} to="/">home</Link>
+        <Link style={padding} to="/users">users</Link>
+      </div>
+      <Routes>
+        <Route path="/" element={
+          <div>
+            <h1>The Blog Listing</h1>
+            <Notification notification={notification} />
+            {!user && loginForm()}
+            {user && (
+              <div>
+                <p>
+                  {user.name} logged in{" "}
+                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+                </p>
+                {blogForm()}
+              </div>
+            )}
+            {user && <Blog blogs={blogs}> </Blog>}
+            {user && blogDetailsForm()}
+            <Footer />
+          </div>
+        }/>
+        <Route path="/users" element={
+          <div>
+            <h1>The Blog Listing</h1>
+            <Notification notification={notification} />
+            {!user && loginForm()}
+            {user && (
+              <div>
+                <p>
+                  {user.name} logged in{" "}
+                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+                </p>
+              </div>
+            )}
+            <Users users={users}/>
+            <Footer/>
+          </div>   
+        }/> 
+      </Routes>
+    </Router>
   );
 };
+
+/*
+
+  return (
+    <Router>
+      <div>
+        <Link style={padding} to="/">home</Link>
+        <Link style={padding} to="/users">users</Link>
+      </div>
+      <Routes>
+        <Route path="/users" element={<Blog blogs={blogs}> </Blog>} /> 
+      </Routes>
+      <div>
+        <h1>The Blog Listing</h1>
+        <Notification notification={notification} />
+        {!user && loginForm()}
+        {user && (
+          <div>
+            <p>
+              {user.name} logged in{" "}
+              <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+            </p>
+            {blogForm()}
+          </div>
+        )}
+        {user && <Blog blogs={blogs}> </Blog>}
+        {user && blogDetailsForm()}
+        <Footer />
+      </div>
+    </Router>
+  );
+};
+
+*/
 
 export default App;
