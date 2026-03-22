@@ -50,6 +50,7 @@ blogsRouter.post("/", async (request, response, next) => {
     user: body.userId,
     url: body.url,
     likes: body.likes || 0,
+    comments: body.comments
   });
 
   const savedBlog = await blog.save();

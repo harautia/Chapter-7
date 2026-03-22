@@ -183,25 +183,23 @@ Component mounts
       <div>
         <Link style={padding} to="/">blogs</Link>
         <Link style={padding} to="/users">users</Link>
+        {user && (
+          <>
+          {user.name} logged in{" "}
+          <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+          </>
+        )}
       </div>
       <Routes>
         <Route path="/blogs/:id" element={
           <div>
             <h1>The Blog Listing</h1>
             <Notification notification={notification} />
-            {!user && loginForm()}
-            {user && (
-              <div>
-                <p>
-                  {user.name} logged in{" "}
-                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-                </p>
-              </div>
-            )}        
+            {!user && loginForm()}    
             <Blog users={users} blogs={blogs} handleAddLike={handleAddLike}/>
             <Footer />
           </div>
-        }/>
+        }/>        
         <Route path="/" element={
           <div>
             <h1>The Blog Listing</h1>
@@ -209,10 +207,6 @@ Component mounts
             {!user && loginForm()}
             {user && (
               <div>
-                <p>
-                  {user.name} logged in{" "}
-                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-                </p>
                 {blogForm()}
               </div>
             )}
@@ -225,14 +219,6 @@ Component mounts
             <h1>The Blog Listing</h1>
             <Notification notification={notification} />
             {!user && loginForm()}
-            {user && (
-              <div>
-                <p>
-                  {user.name} logged in{" "}
-                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-                </p>
-              </div>
-            )}
           <User users={users} blogs={blogs} />
             <Footer/>
           </div>   

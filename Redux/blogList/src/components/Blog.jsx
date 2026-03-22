@@ -25,9 +25,13 @@ const Blog = ({ blogs, users, handleAddLike }) => {
                 onClick={() => handleAddLike(blog.id, blog.likes)}> Add Like
             </button>
         </p>
-        <p>
-            Added by {user.name}
-        </p>
+        <p>Added by {user.name}</p>
+        <h3>Comments</h3>
+        <ul>
+        {blog.comments && blog.comments.map((comment, index) => (
+            <li key={index}>{comment}</li>
+        ))}
+        </ul>
     </div>
   );
 };
