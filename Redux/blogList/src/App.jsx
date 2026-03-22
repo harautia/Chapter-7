@@ -4,6 +4,7 @@ import loginService from "./services/login";
 import userService from "./services/users";
 import Notification from "./components/Notification";
 import BlogDetails from "./components/BlogDetails";
+import Blogs from "./components/Blogs";
 import Blog from "./components/Blog";
 import User from "./components/User";
 import Users from "./components/Users";
@@ -180,10 +181,27 @@ Component mounts
   return (
     <Router>
       <div>
-        <Link style={padding} to="/">home</Link>
+        <Link style={padding} to="/">blogs</Link>
         <Link style={padding} to="/users">users</Link>
       </div>
       <Routes>
+        <Route path="/blogs/:id" element={
+          <div>
+            <h1>The Blog Listing</h1>
+            <Notification notification={notification} />
+            {!user && loginForm()}
+            {user && (
+              <div>
+                <p>
+                  {user.name} logged in{" "}
+                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+                </p>
+              </div>
+            )}        
+            <Blog users={users} blogs={blogs} handleAddLike={handleAddLike}/>
+            <Footer />
+          </div>
+        }/>
         <Route path="/" element={
           <div>
             <h1>The Blog Listing</h1>
@@ -198,8 +216,7 @@ Component mounts
                 {blogForm()}
               </div>
             )}
-            {user && <Blog blogs={blogs}> </Blog>}
-            {user && blogDetailsForm()}
+            {user && <Blogs blogs={blogs}> </Blogs>}
             <Footer />
           </div>
         }/>
@@ -222,17 +239,6 @@ Component mounts
         }/> 
         <Route path="/users" element={
           <div>
-            <h1>The Blog Listing</h1>
-            <Notification notification={notification} />
-            {!user && loginForm()}
-            {user && (
-              <div>
-                <p>
-                  {user.name} logged in{" "}
-                  <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-                </p>
-              </div>
-            )}
             <Users users={users}/>
             <Footer/>
           </div>   
