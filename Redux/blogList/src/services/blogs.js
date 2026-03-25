@@ -25,6 +25,13 @@ const addLikes = (blogId, newLikes) => {
   return axios.put(`${baseUrl}/${blogId}`, newLikes, config);
 };
 
+const addComment = (blogId, newComment) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  return axios.put(`${baseUrl}/${blogId}/comments`, newComment, config);
+};
+
 const deleteBlog = (blogId) => {
   console.log(blogId);
   return axios.delete(`${baseUrl}/${blogId}`);
@@ -36,4 +43,5 @@ export default {
   deleteBlog: deleteBlog,
   addLikes: addLikes,
   setToken: setToken,
+  addComment, addComment
 };

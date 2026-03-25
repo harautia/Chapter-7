@@ -196,7 +196,7 @@ Component mounts
             <h1>The Blog Listing</h1>
             <Notification notification={notification} />
             {!user && loginForm()}    
-            <Blog users={users} blogs={blogs} handleAddLike={handleAddLike}/>
+            <Blog users={users} blogs={blogs} handleAddLike={handleAddLike} handleBlogDelete={handleBlogDelete}/>
             <Footer />
           </div>
         }/>        
@@ -219,7 +219,7 @@ Component mounts
             <h1>The Blog Listing</h1>
             <Notification notification={notification} />
             {!user && loginForm()}
-          <User users={users} blogs={blogs} />
+            <User users={users} blogs={blogs} />
             <Footer/>
           </div>   
         }/> 

@@ -13,10 +13,11 @@ const BlogForm = ({ createBlog }) => {
       author: newAuthor,
       url: newUrl,
       likes: likes,
+      comments:[]
     };
 
     createBlog(blogObject);
-
+    console.log(blogObject)
     setNewTitle("");
     setNewAuthor("");
     setNewUrl("");
