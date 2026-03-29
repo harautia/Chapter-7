@@ -1,3 +1,5 @@
+import { Form, Button } from 'react-bootstrap';
+
 const LoginForm = ({
   handleLogin,
   handleUsernameChange,
@@ -8,7 +10,7 @@ const LoginForm = ({
   return (
     <div>
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      <Form onSubmit={handleLogin}>
         <div>
           <label>
             username
@@ -29,8 +31,8 @@ const LoginForm = ({
             />
           </label>
         </div>
-        <button type="submit">login</button>
-      </form>
+        <Button type="submit">login</Button>
+      </Form>
     </div>
   );
 };

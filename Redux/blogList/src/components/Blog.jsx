@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux'
 import {
   useParams
 } from 'react-router-dom'
+import { Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'
 
 const Blog = ({ blogs, users, handleAddLike, handleBlogDelete }) => {
     const id = useParams().id
@@ -11,6 +13,9 @@ const Blog = ({ blogs, users, handleAddLike, handleBlogDelete }) => {
     const user = users.find(u => u.blogs.some(b => b.id === id))
     const [comment, setComment] = useState('')
     const dispatch = useDispatch()
+    const navigate = useNavigate()
+    // This is need when blog is deleted and redirect is done to / - folder
+    if (!blog) return null
     console.log(id)
     console.log(blog)
     console.log(user)
@@ -18,7 +23,7 @@ const Blog = ({ blogs, users, handleAddLike, handleBlogDelete }) => {
 // The a href had to be so difficult since url was stored only with www.hippo.com - format
 // if the link had already correct format http:// - then only blog url would be enough
   return (
-    <div>
+    <div className="container">
         <h2>{blog.title}</h2>
         <a
             href={blog.url.startsWith('http') ? blog.url : `https://${blog.url}`}
@@ -26,36 +31,35 @@ const Blog = ({ blogs, users, handleAddLike, handleBlogDelete }) => {
         </a>
         <p>
             {blog.likes} likes {" "}
-            <button
+            <Button
                 onClick={() => handleAddLike(blog.id, blog.likes)}> Add Like
-            </button>
+            </Button>
         </p>
-        <p>Added by {user.name}</p>
+        <p>The blog is added by {user.name}</p>
         <h3>Comments</h3>
+        <ul>
+            {blog.comments && blog.comments.map((comment, index) => (
+                <li key={index}>{comment}</li>
+            ))}
+        </ul>
         <input
-        value={comment}
-        onChange={(event) => setComment(event.target.value)}
-        placeholder="Comment free text field"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            placeholder="Comment free text field"
         />
         <div>
-        <button onClick={() => {
-            dispatch(addComment({ id: blog.id, comment }))
-            setComment('')
-        }}>
-            add comment
-        </button>
+            <Button onClick={() => {
+                dispatch(addComment({ id: blog.id, comment }))
+                setComment('')
+            }}>
+            Add comment to Blog
+            </Button>
         </div>
-        <ul>
-        {blog.comments && blog.comments.map((comment, index) => (
-            <li key={index}>{comment}</li>
-        ))}
-        </ul>
-        <button
-            id="windowButton" onClick={() => handleBlogDelete(blog.id)}
-            >
-            {" "}
-            Delete{" "}
-        </button>{" "}
+        <div>
+            <Button id="windowButton" onClick={() => handleBlogDelete(blog.id, navigate)} >
+                Delete Blog
+            </Button>
+        </div>
     </div>
   );
 };

@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
+import { Table } from 'react-bootstrap';
 
 const Blogs = ({ blogs }) => {
   return (
     <div>
-      <h3> Blog Basic Info</h3>
-      <table>
+      <Table striped>
         <thead>
           <tr>
             <th>Title</th>
@@ -17,7 +17,7 @@ const Blogs = ({ blogs }) => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 };

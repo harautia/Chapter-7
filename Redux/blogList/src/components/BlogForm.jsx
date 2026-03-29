@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Form, Button } from 'react-bootstrap'
 
 const BlogForm = ({ createBlog }) => {
   const [newTitle, setNewTitle] = useState("");
@@ -26,8 +27,8 @@ const BlogForm = ({ createBlog }) => {
 
   return (
     <div>
-      <h2> Add blog to database </h2>
-      <form onSubmit={addBlog}>
+      <h2> Add Blog </h2>
+      <Form onSubmit={addBlog}>
         <div>
           Blog Title:{" "}
           <input
@@ -61,9 +62,9 @@ const BlogForm = ({ createBlog }) => {
           />
         </div>
         <div>
-          <button type="submit">add</button>
+          <Button type="submit">add</Button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 };

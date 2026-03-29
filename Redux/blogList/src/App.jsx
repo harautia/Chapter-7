@@ -21,6 +21,7 @@ import {
   BrowserRouter as Router,
   Routes, Route, Link
 } from 'react-router-dom'
+import { Nav, Navbar } from "react-bootstrap";
 
 const App = () => {
 
@@ -54,11 +55,12 @@ const addBlog = (blogObject) => {
 
   const [, setLog] = useState("");
 
-  const handleBlogDelete = (blogId) => {
+  const handleBlogDelete = (blogId, navigate) => {
     if (window.confirm("Do you want to delete the blog?")) {
       blogService.deleteBlog(blogId).then((response) => {
         console.log("Data After Blog Delete: ", response);
         dispatch(deleteBlog(blogId));
+        navigate('/');
       });
     } else {
       setLog("Action discarded");
@@ -179,58 +181,67 @@ Component mounts
   }
 
   return (
-    <Router>
-      <div>
-        <Link style={padding} to="/">blogs</Link>
-        <Link style={padding} to="/users">users</Link>
+      <Router>
+        <div className="container">
         {user && (
-          <>
-          {user.name} logged in{" "}
-          <button onClick={() => handleLogout(user)}> Logout</button>{" "}
-          </>
+          <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+            <Navbar.Collapse id="responsive-navbar-nav">
+              <Nav className="mr-auto">
+                <Nav.Link href="#" as="span">
+                  <Link style={padding} to="/">home</Link>
+                </Nav.Link>
+                <Nav.Link href="#" as="span">
+                  <Link style={padding} to="/users">users</Link>
+                </Nav.Link>
+                <Nav.Link href="#" as="span">
+                    <>
+                    {user.name} logged in{" "}
+                    <button onClick={() => handleLogout(user)}> Logout</button>{" "}
+                    </>
+                </Nav.Link>
+              </Nav>
+            </Navbar.Collapse>
+          </Navbar>
         )}
-      </div>
-      <Routes>
-        <Route path="/blogs/:id" element={
-          <div>
-            <h1>The Blog Listing</h1>
-            <Notification notification={notification} />
-            {!user && loginForm()}    
-            <Blog users={users} blogs={blogs} handleAddLike={handleAddLike} handleBlogDelete={handleBlogDelete}/>
-            <Footer />
-          </div>
-        }/>        
-        <Route path="/" element={
-          <div>
-            <h1>The Blog Listing</h1>
-            <Notification notification={notification} />
-            {!user && loginForm()}
-            {user && (
-              <div>
-                {blogForm()}
-              </div>
-            )}
-            {user && <Blogs blogs={blogs}> </Blogs>}
-            <Footer />
-          </div>
-        }/>
-        <Route path="/users/:id" element={
-          <div>
-            <h1>The Blog Listing</h1>
-            <Notification notification={notification} />
-            {!user && loginForm()}
-            <User users={users} blogs={blogs} />
-            <Footer/>
-          </div>   
-        }/> 
-        <Route path="/users" element={
-          <div>
-            <Users users={users}/>
-            <Footer/>
-          </div>   
-        }/> 
-      </Routes>
-    </Router>
+        <Notification notification={notification} />
+        <h1>The List of All Blogs</h1>
+        </div>         
+        <Routes>
+          <Route path="/" element={
+            <div className="container">
+              {!user && loginForm()}
+              {user && <Blogs blogs={blogs}> </Blogs>}
+              {user && (
+                <div className="container">
+                  {blogForm()}
+                </div>
+              )}
+              <Footer />
+            </div>
+          }/>
+          <Route path="/blogs/:id" element={
+            <div className="container">
+              <Blog users={users} blogs={blogs} handleAddLike={handleAddLike} handleBlogDelete={handleBlogDelete}/>
+              {!user && loginForm()} 
+              <Footer />
+            </div>
+          }/>        
+          <Route path="/users/:id" element={
+            <div className="container">
+              {!user && loginForm()}
+              <User users={users} blogs={blogs} />
+              <Footer/>
+            </div>   
+          }/> 
+          <Route path="/users" element={
+            <div className="container">
+              <Users users={users}/>
+              <Footer/>
+            </div>   
+          }/> 
+        </Routes>
+      </Router>
   );
 };
 
